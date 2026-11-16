@@ -6,8 +6,8 @@ no meshes, no HDRIs and no animation data in this repository.
 
 **▶ [snowflow-lilac.vercel.app](https://snowflow-lilac.vercel.app/)**
 
-> Requires a WebGPU-capable desktop browser (Chrome/Edge 113+, Firefox 141+,
-> Safari 26+) and a discrete or recent integrated GPU. There is no WebGL
+> Requires a WebGPU-capable browser and GPU, including on phones and tablets.
+> There is no WebGL
 > fallback by design — if `navigator.gpu` is missing the page says so and stops.
 
 ---
@@ -23,6 +23,12 @@ no meshes, no HDRIs and no animation data in this repository.
 | **Right mouse (hold)** | snow-surf — carve across the field and throw a wake |
 | `1` – `5` | the five spells (`2` is a held cast) |
 | `F1` or `` ` `` | settings and performance overlay |
+
+On a touchscreen, drag **Move** at the bottom left to walk and drag the scene
+to look around. Hold **Run** or **Surf** while moving; tap spells **1–5** (hold
+**2 / Ribbon** to keep casting). Use **+ / −** to zoom and **Settings / Close**
+to open or close the overlay. Multiple fingers can move, look and cast together.
+Controls appear on touch-capable devices; mouse and keyboard remain available.
 
 The overlay exposes every art parameter as a live slider — sun angle, wind
 bearing, subsurface radius, deformation depth, tonemap curve, exposure — plus a
@@ -240,6 +246,7 @@ npm install
 npm run dev      # vite dev server on :5173
 npm run build    # production build into dist/
 npm run preview  # serve the production build
+npm test         # input regression checks (no GPU required)
 ```
 
 ## Layout

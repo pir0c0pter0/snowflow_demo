@@ -1,7 +1,7 @@
 /**
  * Settings + performance overlay. Hidden by default, toggled with F1 / backtick.
  *
- * This is the only UI in the demo. It is built once from `SCHEMA`; the readouts
+ * Built once from `SCHEMA`; the readouts
  * refresh on a 4 Hz timer rather than per frame, because formatting numbers into
  * strings 90 times a second is steady garbage for no benefit. The frame graph
  * redraws at 20 Hz — fast enough to watch a hitch appear, cheap enough to
@@ -14,14 +14,15 @@ import { stats, systemMs, FrameGraph, spikes, resetSpikes } from "../core/perf.j
 const CSS = `
 #ov {
   position: fixed; top: 0; right: 0; bottom: 0; z-index: 80;
-  width: 336px; display: none;
+  width: min(336px, 100vw); display: none;
   font: 400 11px/1.5 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
   color: #cddaea;
   background: rgba(8, 12, 19, 0.86);
   backdrop-filter: blur(18px) saturate(1.2);
   border-left: 1px solid rgba(143, 196, 232, 0.14);
   overflow-y: auto; overscroll-behavior: contain;
-  padding: 14px 16px 40px;
+  padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(40px + env(safe-area-inset-bottom)) 16px;
 }
 #ov.show { display: block; }
 #ov::-webkit-scrollbar { width: 8px; }
@@ -40,6 +41,9 @@ const CSS = `
 }
 #ov .hdr b { font-size: 11px; font-weight: 600; letter-spacing: 0.3em; color: #e6eff8; }
 #ov .hdr i { font-style: normal; font-size: 9px; letter-spacing: 0.14em; color: #55677a; }
+#ov .close { min-width: 44px; min-height: 44px; padding: 0 8px; font: inherit;
+  color: var(--frost); background: var(--ink-2); border: 1px solid var(--accent); cursor: pointer; }
+#ov .close:focus-visible { outline: 2px solid var(--frost); outline-offset: 2px; }
 
 #ov canvas { width: 100%; height: 66px; display: block;
   background: rgba(0,0,0,0.32); border: 1px solid rgba(143,196,232,0.10); border-radius: 3px; }
@@ -73,6 +77,7 @@ const CSS = `
 #ov select { flex: 1; background: rgba(0,0,0,0.35); color: #dbe6f2;
   border: 1px solid rgba(143,196,232,0.16); border-radius: 3px; padding: 2px 5px;
   font: inherit; outline: none; cursor: pointer; }
+#ov input[type=range], #ov select { min-width: 0; }
 
 #ov .presets { display: flex; gap: 6px; margin-top: 4px; }
 #ov .presets button { flex: 1; background: rgba(143,196,232,0.07); color: #8fa3b8;
@@ -117,6 +122,12 @@ export class Overlay {
         const hdr = document.createElement("div");
         hdr.className = "hdr";
         hdr.innerHTML = "<b>SNOWFLOW</b><i>F1 to close</i>";
+        const close = document.createElement("button");
+        close.className = "close";
+        close.type = "button";
+        close.textContent = "Close";
+        close.onclick = () => this.toggle();
+        hdr.appendChild(close);
         el.appendChild(hdr);
 
         // ----------------------------------------------------- frame graph
