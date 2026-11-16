@@ -12,6 +12,8 @@
         --frost:    #dbe6f2;
         --frost-dim:#7d8ea3;
         --accent:   #8fc4e8;
+        --touch-size: 44px;
+        --touch-gap: 6px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -170,12 +172,87 @@
     }
 
     #hint.show { opacity: 1; }
+
+    .touch-hint { display: none; }
+    #touch-controls { display: none; position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+    .touch-enabled:not(.pointer-locked) #touch-controls { display: block; }
+    .touch-enabled .desktop-hint { display: none; }
+    .touch-enabled .touch-hint { display: inline; }
+    .touch-enabled #hint {
+        top: calc(66px + env(safe-area-inset-top)); bottom: auto;
+        width: calc(100% - 32px); text-align: center; line-height: 1.8;
+    }
+    #touch-controls button {
+        min-width: var(--touch-size); min-height: var(--touch-size);
+        border: 1px solid var(--accent); border-radius: 6px;
+        color: var(--frost); background: var(--ink-2);
+        font: inherit; font-size: 12px; font-weight: 500; line-height: 1.2; cursor: pointer;
+        touch-action: none; user-select: none; -webkit-user-select: none;
+        -webkit-touch-callout: none; pointer-events: auto;
+    }
+    #touch-controls button:hover { background: var(--ink); }
+    #touch-controls button.held, #touch-controls button:active {
+        color: var(--ink); background: var(--accent);
+    }
+    #touch-controls button:focus-visible { outline: 2px solid var(--frost); outline-offset: 3px; }
+    #touch-controls button:disabled { opacity: 0.5; pointer-events: none; }
+    .touch-tools {
+        position: absolute; top: calc(12px + env(safe-area-inset-top));
+        right: calc(12px + env(safe-area-inset-right)); display: flex; gap: var(--touch-gap);
+    }
+    .touch-tools button { padding: 0 12px; }
+    #touch-controls #touch-move {
+        position: absolute; left: calc(12px + env(safe-area-inset-left));
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        width: clamp(96px, 28vw, 128px); aspect-ratio: 1; border-radius: 50%;
+        display: grid; place-items: center;
+    }
+    #touch-move span {
+        position: absolute; width: 38%; aspect-ratio: 1; border-radius: 50%;
+        border: 1px solid var(--accent); background: var(--ink-2); pointer-events: none;
+    }
+    #touch-move small { position: absolute; bottom: 10%; font-size: 10px; }
+    .touch-actions {
+        position: absolute; right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        display: grid; gap: var(--touch-gap);
+    }
+    .touch-spells { display: grid; grid-template-columns: repeat(3, var(--touch-size)); gap: var(--touch-gap); }
+    .touch-motion { display: grid; grid-template-columns: 1fr 1fr; gap: var(--touch-gap); }
+    .touch-spells small { display: block; font-size: 8px; }
 </style>
 </head>
 <body>
     <canvas id="view" tabindex="0"></canvas>
 
-    <div id="hint">click to look &nbsp;·&nbsp; wasd to move &nbsp;·&nbsp; f1 for settings</div>
+    <div id="hint">
+        <span class="desktop-hint">click to look &nbsp;·&nbsp; wasd to move &nbsp;·&nbsp; f1 for settings</span>
+        <span class="touch-hint">drag Move to walk · drag the scene to look · hold Run, Surf or Ribbon</span>
+    </div>
+
+    <div id="touch-controls" role="group" aria-label="Touch game controls">
+        <div class="touch-tools">
+            <button type="button" data-zoom="-0.8" aria-label="Zoom in">+</button>
+            <button type="button" data-zoom="0.8" aria-label="Zoom out">−</button>
+            <button type="button" data-command="settings" aria-controls="ov">Settings</button>
+        </div>
+        <button type="button" id="touch-move" data-action="move" aria-label="Move: drag to walk, or use arrow keys">
+            <span aria-hidden="true"></span><small>Move</small>
+        </button>
+        <div class="touch-actions">
+            <div class="touch-spells" role="group" aria-label="Spells">
+                <button type="button" data-action="spell1" aria-label="Cast Sweep">1<small>Sweep</small></button>
+                <button type="button" data-action="spell2" aria-label="Hold to cast Ribbon">2<small>Ribbon</small></button>
+                <button type="button" data-action="spell3" aria-label="Cast Bloom">3<small>Bloom</small></button>
+                <button type="button" data-action="spell4" aria-label="Cast Crystallise">4<small>Ice</small></button>
+                <button type="button" data-action="spell5" aria-label="Cast Vortex">5<small>Vortex</small></button>
+            </div>
+            <div class="touch-motion">
+                <button type="button" data-action="sprint" aria-label="Hold to sprint">Run</button>
+                <button type="button" data-action="surf" aria-label="Hold to snow-surf">Surf</button>
+            </div>
+        </div>
+    </div>
 
     <div id="boot">
         <div class="boot-inner">
@@ -189,7 +266,7 @@
     <div id="nogpu">
         <div>
             <b>WebGPU is not available in this browser.</b><br />
-            SNOWFLOW requires a WebGPU-capable browser. Try Chrome 113+ on a desktop GPU.
+            SNOWFLOW requires a WebGPU-capable browser and device.
         </div>
     </div>
 
